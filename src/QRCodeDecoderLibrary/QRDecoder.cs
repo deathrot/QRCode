@@ -94,9 +94,9 @@ namespace QRCodeDecoderLibrary
 
         private readonly ILogger _logger;
 
-        public QRDecoder(ILogger<QRDecoder> logger)
+        public QRDecoder(ILogger<QRDecoder> logger = null)
         {
-            _logger = Guard.NotNull(logger, nameof(logger));
+            _logger = logger;
         }
 
         /// <summary>
@@ -134,7 +134,7 @@ namespace QRCodeDecoderLibrary
                 ImageHeight = inputImage.Height;
 
                 Start = Environment.TickCount;
-                _logger.LogDebug("Convert image to black and white");
+                _logger?.LogDebug("Convert image to black and white");
 
                 // convert input image to black and white boolean image
                 if (!ConvertImageToBlackAndWhite(inputImage.CloneAs<SixLabors.ImageSharp.PixelFormats.Rgb24>()))
@@ -142,44 +142,44 @@ namespace QRCodeDecoderLibrary
                     return null;
                 }
 
-                _logger.LogDebug("Time: {0}", Environment.TickCount - Start);
-                _logger.LogDebug("Finders search");
+                _logger?.LogDebug("Time: {0}", Environment.TickCount - Start);
+                _logger?.LogDebug("Finders search");
 
                 // horizontal search for finders
                 if (!HorizontalFindersSearch())
                 {
-                    _logger.LogError("HorizontalFindersSearch");
+                    _logger?.LogError("HorizontalFindersSearch");
                     return null;
                 }
 
-                _logger.LogDebug("Horizontal Finders count: {0}", FinderList.Count);
+                _logger?.LogDebug("Horizontal Finders count: {0}", FinderList.Count);
 
                 // vertical search for finders
                 VerticalFindersSearch();
 
                 int MatchedCount = 0;
                 foreach (Finder HF in FinderList) if (HF.Distance != double.MaxValue) MatchedCount++;
-                _logger.LogDebug("Matched Finders count: {0}", MatchedCount);
-                _logger.LogDebug("Remove all unused finders");
+                _logger?.LogDebug("Matched Finders count: {0}", MatchedCount);
+                _logger?.LogDebug("Remove all unused finders");
 
                 // remove unused finders
                 if (!RemoveUnusedFinders())
                 {
-                    _logger.LogError("RemoveUnusedFinders");
+                    _logger?.LogError("RemoveUnusedFinders");
                     return null;
                 }
 
-                _logger.LogDebug("Time: {0}", Environment.TickCount - Start);
+                _logger?.LogDebug("Time: {0}", Environment.TickCount - Start);
                 foreach (Finder HF in FinderList)
                 {
-                    _logger.LogDebug(HF.ToString());
+                    _logger?.LogDebug(HF.ToString());
                 }
 
-                _logger.LogDebug("Search for QR corners");
+                _logger?.LogDebug("Search for QR corners");
             }
             catch
             {
-                _logger.LogDebug("QR Code decoding failed (no finders).");
+                _logger?.LogDebug("QR Code decoding failed (no finders).");
                 return null;
             }
 
@@ -202,9 +202,9 @@ namespace QRCodeDecoderLibrary
                                 continue;
                             }
 
-                            _logger.LogDebug("Decode Corner: Top Left:    {0}", corner.TopLeftFinder.ToString());
-                            _logger.LogDebug("Decode Corner: Top Right:   {0}", corner.TopRightFinder.ToString());
-                            _logger.LogDebug("Decode Corner: Bottom Left: {0}", corner.BottomLeftFinder.ToString());
+                            _logger?.LogDebug("Decode Corner: Top Left:    {0}", corner.TopLeftFinder.ToString());
+                            _logger?.LogDebug("Decode Corner: Top Right:   {0}", corner.TopRightFinder.ToString());
+                            _logger?.LogDebug("Decode Corner: Bottom Left: {0}", corner.BottomLeftFinder.ToString());
 
                             // get corner info (version, error code and mask)
                             // continue if failed
@@ -213,7 +213,7 @@ namespace QRCodeDecoderLibrary
                                 continue;
                             }
 
-                            _logger.LogDebug("Decode QR code using three finders");
+                            _logger?.LogDebug("Decode QR code using three finders");
 
                             // decode corner using three finders
                             // continue if successful
@@ -230,7 +230,7 @@ namespace QRCodeDecoderLibrary
                             // decode using 4 points
                             foreach (Finder Align in AlignList)
                             {
-                                _logger.LogDebug("Calculated alignment mark: Row {0}, Col {1}", Align.Row, Align.Col);
+                                _logger?.LogDebug("Calculated alignment mark: Row {0}, Col {1}", Align.Row, Align.Col);
 
                                 // calculate transformation based on 3 finders and bottom right alignment mark
                                 SetTransMatrix(corner, Align.Row, Align.Col);
@@ -241,17 +241,17 @@ namespace QRCodeDecoderLibrary
                         }
                         catch (Exception Ex)
                         {
-                            _logger.LogDebug("Decode corner failed. {0}", Ex.Message);
+                            _logger?.LogDebug("Decode corner failed. {0}", Ex.Message);
                             continue;
                         }
                     }
 
-            _logger.LogDebug("Time: {0}", Environment.TickCount - Start);
+            _logger?.LogDebug("Time: {0}", Environment.TickCount - Start);
 
             // not found exit
             if (DataArrayList.Count == 0)
             {
-                _logger.LogError("No QR Code found");
+                _logger?.LogError("No QR Code found");
                 return null;
             }
 
@@ -294,7 +294,7 @@ namespace QRCodeDecoderLibrary
             LevelEnd++;
             if (LevelEnd - LevelStart < 2)
             {
-                _logger.LogDebug("Convert image to back and white array. Input image has no color variations");
+                _logger?.LogDebug("Convert image to back and white array. Input image has no color variations");
                 return false;
             }
 
@@ -369,7 +369,7 @@ namespace QRCodeDecoderLibrary
             // no finders found
             if (FinderList.Count < 3)
             {
-                _logger.LogDebug("Horizontal finders search. Less than 3 finders found");
+                _logger?.LogDebug("Horizontal finders search. Less than 3 finders found");
                 return false;
             }
 
@@ -443,7 +443,7 @@ namespace QRCodeDecoderLibrary
             }
 
             // list is now empty or has less than three finders
-            if (AlignList.Count == 0) _logger.LogDebug("Vertical align search.\r\nNo finders found");
+            if (AlignList.Count == 0) _logger?.LogDebug("Vertical align search.\r\nNo finders found");
 
             // exit
             return AlignList.Count != 0;
@@ -613,7 +613,7 @@ namespace QRCodeDecoderLibrary
             if (FinderList.Count < 3)
             {
 
-                _logger.LogDebug("Remove unmatched finders. Less than 3 finders found");
+                _logger?.LogDebug("Remove unmatched finders. Less than 3 finders found");
 
                 return false;
             }
@@ -640,7 +640,7 @@ namespace QRCodeDecoderLibrary
             if (FinderList.Count < 3)
             {
 
-                _logger.LogDebug("Keep best matched finders. Less than 3 finders found");
+                _logger?.LogDebug("Keep best matched finders. Less than 3 finders found");
 
                 return false;
             }
@@ -686,7 +686,7 @@ namespace QRCodeDecoderLibrary
             // list is now empty or has less than three finders
 
             if (AlignList.Count == 0)
-                _logger.LogDebug("Remove unused alignment marks.\r\nNo alignment marks found");
+                _logger?.LogDebug("Remove unused alignment marks.\r\nNo alignment marks found");
 
 
             // exit
@@ -771,7 +771,7 @@ namespace QRCodeDecoderLibrary
                 QRCodeDimension = 17 + 4 * QRCodeVersion;
 
 
-                _logger.LogDebug("Initial version number: {0}, dimension: {1}", QRCodeVersion, QRCodeDimension);
+                _logger?.LogDebug("Initial version number: {0}, dimension: {1}", QRCodeVersion, QRCodeDimension);
 
 
                 // set transformation matrix
@@ -797,7 +797,7 @@ namespace QRCodeDecoderLibrary
                         QRCodeDimension = 17 + 4 * QRCodeVersion;
 
 
-                        _logger.LogDebug("Updated version number: {0}, dimension: {1}", QRCodeVersion, QRCodeDimension);
+                        _logger?.LogDebug("Updated version number: {0}, dimension: {1}", QRCodeVersion, QRCodeDimension);
 
 
                         // set transformation matrix
@@ -822,7 +822,7 @@ namespace QRCodeDecoderLibrary
             }
             catch
             {
-                _logger.LogDebug("Get QR Code corner info.");
+                _logger?.LogDebug("Get QR Code corner info.");
                 return false;
             }
         }
@@ -864,17 +864,17 @@ namespace QRCodeDecoderLibrary
                 // trace
 
                 string dataString = ByteArrayToString(DataArray);
-                _logger.LogDebug("Version: {0}, Dim: {1}, ErrCorr: {2}, Generator: {3}, Mask: {4}, Group1: {5}:{6}, Group2: {7}:{8}",
+                _logger?.LogDebug("Version: {0}, Dim: {1}, ErrCorr: {2}, Generator: {3}, Mask: {4}, Group1: {5}:{6}, Group2: {7}:{8}",
                     QRCodeVersion.ToString(), QRCodeDimension.ToString(), ErrorCorrection.ToString(), ErrCorrCodewords.ToString(), MaskCode.ToString(),
                     BlocksGroup1.ToString(), DataCodewordsGroup1.ToString(), BlocksGroup2.ToString(), DataCodewordsGroup2.ToString());
-                _logger.LogDebug("Data: {0}", dataString);
+                _logger?.LogDebug("Data: {0}", dataString);
 
                 // successful exit
                 return true;
             }
             catch
             {
-                _logger.LogDebug("Decode QR code exception.");
+                _logger?.LogDebug("Decode QR code exception.");
                 return false;
             }
         }
@@ -1011,7 +1011,7 @@ namespace QRCodeDecoderLibrary
             int ImageCol = (int)Math.Round(Trans3a * AlignCol + Trans3c * AlignRow + Trans3e, 0, MidpointRounding.AwayFromZero);
             int ImageRow = (int)Math.Round(Trans3b * AlignCol + Trans3d * AlignRow + Trans3f, 0, MidpointRounding.AwayFromZero);
 
-            _logger.LogDebug("Estimated alignment mark: Row {0}, Col {1}", ImageRow, ImageCol);
+            _logger?.LogDebug("Estimated alignment mark: Row {0}, Col {1}", ImageRow, ImageCol);
 
             // search area
             int Side = (int)Math.Round(ALIGNMENT_SEARCH_AREA * (corner.TopLineLength + corner.LeftLineLength), 0, MidpointRounding.AwayFromZero);
@@ -1194,7 +1194,7 @@ namespace QRCodeDecoderLibrary
             if (Code >= 7 && Code <= 40 && VersionCodeArray[Code - 7] == VersionCode)
             {
 
-                _logger.LogDebug("Version code exact match: {0:X4}, Version: {1}", VersionCode, Code);
+                _logger?.LogDebug("Version code exact match: {0:X4}, Version: {1}", VersionCode, Code);
 
                 return Code;
             }
@@ -1221,10 +1221,10 @@ namespace QRCodeDecoderLibrary
 
 
             if (Error <= 3)
-                _logger.LogDebug("Version code match with errors: {0:X4}, Version: {1}, Errors: {2}",
+                _logger?.LogDebug("Version code match with errors: {0:X4}, Version: {1}, Errors: {2}",
                     VersionCode, BestInfo + 7, Error);
             else
-                _logger.LogDebug("Version code no match: {0:X4}", VersionCode);
+                _logger?.LogDebug("Version code no match: {0:X4}", VersionCode);
 
 
             return Error <= 3 ? BestInfo + 7 : 0;
@@ -1278,7 +1278,7 @@ namespace QRCodeDecoderLibrary
             if (FormatInfoArray[Info] == FormatInfo)
             {
 
-                _logger.LogDebug("Format info exact match: {0:X4}, EC: {1}, mask: {2}",
+                _logger?.LogDebug("Format info exact match: {0:X4}, EC: {1}, mask: {2}",
                     FormatInfo, FormatInfoToErrCode(Info >> 3).ToString(), Info & 7);
 
                 return Info;
@@ -1299,10 +1299,10 @@ namespace QRCodeDecoderLibrary
 
 
             if (Error <= 3)
-                _logger.LogDebug("Format info match with errors: {0:X4}, EC: {1}, mask: {2}, errors: {3}",
+                _logger?.LogDebug("Format info match with errors: {0:X4}, EC: {1}, mask: {2}, errors: {3}",
                     FormatInfo, FormatInfoToErrCode(Info >> 3).ToString(), Info & 7, Error);
             else
-                _logger.LogDebug("Format info no match: {0:X4}", FormatInfo);
+                _logger?.LogDebug("Format info no match: {0:X4}", FormatInfo);
 
 
             return Error <= 3 ? BestInfo : -1;
@@ -1353,15 +1353,15 @@ namespace QRCodeDecoderLibrary
 
             if (ErrorCount == 0)
             {
-                _logger.LogDebug("Fixed modules no error");
+                _logger?.LogDebug("Fixed modules no error");
             }
             else if (ErrorCount <= FixedCount * ErrCorrPercent[(int)ErrorCorrection] / 100)
             {
-                _logger.LogDebug("Fixed modules some errors: {0} / {1}", ErrorCount, FixedCount);
+                _logger?.LogDebug("Fixed modules some errors: {0} / {1}", ErrorCount, FixedCount);
             }
             else
             {
-                _logger.LogDebug("Fixed modules too many errors: {0} / {1}", ErrorCount, FixedCount);
+                _logger?.LogDebug("Fixed modules too many errors: {0} / {1}", ErrorCount, FixedCount);
             }
 
             if (ErrorCount > FixedCount * ErrCorrPercent[(int)ErrorCorrection] / 100)
@@ -1592,11 +1592,11 @@ namespace QRCodeDecoderLibrary
 
             if (TotalErrorCount == 0)
             {
-                _logger.LogDebug("No data errors");
+                _logger?.LogDebug("No data errors");
             }
             else
             {
-                _logger.LogDebug("Error correction applied to data. Total errors: " + TotalErrorCount.ToString());
+                _logger?.LogDebug("Error correction applied to data. Total errors: " + TotalErrorCount.ToString());
             }
 
         }
