@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0</TargetFrameworks>
+        <TargetFrameworks>net7.0</TargetFrameworks>
         <Description>This QR Code library supports decoding a QR Code image using ImageSharp</Description>
         <RootNamespace>QRCodeDecoderLibrary</RootNamespace>
         <LangVersion>9</LangVersion>
@@ -27,7 +27,7 @@
         <PackageReference Include="Stef.Validation" Version="0.1.1" />
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netstandard2.1' or '$(TargetFramework)' == 'net5.0'">
+    <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
     </ItemGroup>
