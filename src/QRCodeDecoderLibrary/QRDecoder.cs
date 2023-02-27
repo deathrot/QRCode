@@ -263,50 +263,24 @@ namespace QRCodeDecoderLibrary
         ////////////////////////////////////////////////////////////////////
         internal bool ConvertImageToBlackAndWhite(SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.Rgb24> InputImage)
         {
-            // address of first line            
-            // allocate gray image 
-            byte[,] GrayImage = new byte[ImageHeight, ImageWidth];
-            int[] GrayLevel = new int[256];
 
-            // convert to gray
-            for (int Row = 0; Row < ImageHeight; Row++)
-            {
-                int BitmapPtr = 0;
-                
-                var span = InputImage.GetPixelRowSpan(Row);
+            InputImage.Mutate(i => i.BlackWhite());
 
-                byte[] rawData = MemoryMarshal.AsBytes(span).ToArray();
-                
-                for (int Col = 0; Col < ImageWidth; Col++)
-                {   
-                    int Module = (30 * rawData[BitmapPtr] + 59 * rawData[BitmapPtr + 1] + 11 * rawData[BitmapPtr + 2]) / 100;
-                    GrayLevel[Module]++;
-                    GrayImage[Row, Col] = (byte)Module;
-                    BitmapPtr += 3;
-                }
-            }
-
-            // gray level cutoff between black and white
-            int LevelStart;
-            int LevelEnd;
-            for (LevelStart = 0; LevelStart < 256 && GrayLevel[LevelStart] == 0; LevelStart++) ;
-            for (LevelEnd = 255; LevelEnd >= LevelStart && GrayLevel[LevelEnd] == 0; LevelEnd--) ;
-            LevelEnd++;
-            if (LevelEnd - LevelStart < 2)
-            {
-                _logger?.LogDebug("Convert image to back and white array. Input image has no color variations");
-                return false;
-            }
-
-            int CutoffLevel = (LevelStart + LevelEnd) / 2;
-
-            // create boolean image white = false, black = true
             BlackWhiteImage = new bool[ImageHeight, ImageWidth];
             for (int Row = 0; Row < ImageHeight; Row++)
-                for (int Col = 0; Col < ImageWidth; Col++)
-                    BlackWhiteImage[Row, Col] = GrayImage[Row, Col] < CutoffLevel;
+            {
+                InputImage.ProcessPixelRows(px =>
+                {
+                    var span = px.GetRowSpan(Row);
+                    for (int Col = 0; Col < ImageWidth; Col++)
+                    {
 
-            // save as black white image
+                        BlackWhiteImage[Row, Col] = span[Col].R == 0;
+                    }
+                });
+            }
+
+
             return true;
         }
 
