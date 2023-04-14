@@ -8,8 +8,7 @@ namespace DecoderTest
         [Test]
         public void SmokeTest()
         {
-            QRCodeDecoderLibrary.QRDecoder decoder = new
-                QRCodeDecoderLibrary.QRDecoder(new NullLogger<QRCodeDecoderLibrary.QRDecoder>());
+            QRCodeDecoderLibrary.QRDecoder decoder = new();
             var result = decoder.ImageDecoder(SixLabors.ImageSharp.Image.Load("pass.png"));
 
             Assert.IsNotNull(result);
@@ -21,8 +20,7 @@ namespace DecoderTest
         [Test]
         public void DecoderTest()
         {
-            QRCodeDecoderLibrary.QRDecoder decoder = new
-                QRCodeDecoderLibrary.QRDecoder(new NullLogger<QRCodeDecoderLibrary.QRDecoder>());
+            QRCodeDecoderLibrary.QRDecoder decoder = new ();
             var result = decoder.ImageDecoder(SixLabors.ImageSharp.Image.Load("pass.png"));
 
             Assert.IsNotNull(result);
