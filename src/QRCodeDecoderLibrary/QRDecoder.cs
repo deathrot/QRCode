@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Runtime.InteropServices;
 using System.Text;
+
 using Microsoft.Extensions.Logging;
+
 using QRCodeSharedLibrary;
-using Stef.Validation;
+
 using SixLabors.ImageSharp.Processing;
+
+using Stef.Validation;
 
 namespace QRCodeDecoderLibrary
 {

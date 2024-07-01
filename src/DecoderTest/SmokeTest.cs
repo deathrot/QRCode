@@ -20,7 +20,7 @@ namespace DecoderTest
         [Test]
         public void DecoderTest()
         {
-            QRCodeDecoderLibrary.QRDecoder decoder = new ();
+            QRCodeDecoderLibrary.QRDecoder decoder = new();
             var result = decoder.ImageDecoder(SixLabors.ImageSharp.Image.Load("pass.png"));
 
             Assert.IsNotNull(result);
