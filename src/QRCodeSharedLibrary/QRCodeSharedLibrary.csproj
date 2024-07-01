@@ -5,4 +5,8 @@
         <PackageId>QRCodeShared</PackageId>
         <PackageLicenseUrl>https://www.codeproject.com/info/cpol10.aspx</PackageLicenseUrl>
     </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="SixLabors.ImageSharp" Version="3.1.4" />
+    </ItemGroup>
 </Project>

@@ -8,5 +8,10 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             return services.AddTransient<QRDecoder>();
         }
+
+        public static IServiceCollection AddQRCodeDecoderFactory(this IServiceCollection services)
+        {
+            return services.AddSingleton<IQRDecoderFactory, QRDecoderFactory>();
+        }
     }
 }
